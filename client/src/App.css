@@ -379,26 +379,222 @@ button:hover {
   margin-bottom: 10px;
 }
 
+/* Tablet and below - stack layout */
 @media screen and (max-width: 1024px) {
   .main-container {
     flex-direction: column;
+    gap: 15px;
+    padding: 15px;
   }
 
   .stats-dashboard {
     width: 100%;
     margin-top: 0;
   }
+
+  .map-section {
+    width: 100%;
+  }
 }
 
-@media screen and (max-width: 767px) {
+/* Medium mobile and tablets */
+@media screen and (max-width: 768px) {
+  .app-header {
+    padding: 10px 15px;
+  }
+
   .ag-canvas {
-    flex-flow: row wrap;
-    height: auto;
-    padding: 4rem 1rem 1rem;
+    height: 400px;
+    padding: 1rem 0.5rem;
   }
 
   .ag-canvas_svg {
-    max-height: calc(100% - 6rem);
-    margin-left: 0;
+    max-height: 100%;
+  }
+
+  /* User tabs - better wrapping */
+  .tab-view {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .tab-view label {
+    padding: 0 15px;
+    font-size: 12px;
+    line-height: 40px;
+  }
+
+  .tab-view label.active {
+    font-size: 13px;
+    line-height: 44px;
+    padding: 0 18px;
+  }
+
+  /* Form optimizations */
+  .add-country-form {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .add-country-form button {
+    width: 100%;
+    padding: 12px;
+  }
+
+  /* Stats dashboard */
+  .stats-dashboard {
+    padding: 15px;
+  }
+
+  .stats-dashboard h2 {
+    font-size: 1.3rem;
+  }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  /* New user form */
+  .new-user-form {
+    margin: 20px auto;
+    padding: 15px;
+  }
+
+  .new-user-form h1 {
+    font-size: 2em;
+  }
+}
+
+/* Small mobile devices */
+@media screen and (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .app-header {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .main-container {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  /* User tabs - compact mobile view */
+  .tab-view {
+    width: 100%;
+  }
+
+  .tab-view>div {
+    flex: 0 0 auto;
+  }
+
+  .tab-view label {
+    padding: 0 10px;
+    font-size: 11px;
+    line-height: 36px;
+    min-height: 44px;
+    /* Touch-friendly */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tab-view label.active {
+    font-size: 12px;
+    line-height: 40px;
+    padding: 0 12px;
+  }
+
+  /* Delete user button - larger touch target */
+  .delete-user-btn {
+    font-size: 1.2em !important;
+    padding: 5px;
+    margin-left: 5px !important;
+  }
+
+  /* Map canvas */
+  .ag-canvas {
+    height: 300px;
+    padding: 0.5rem;
+  }
+
+  /* Form inputs */
+  input[type="text"] {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  button {
+    padding: 12px;
+    font-size: 14px;
+    min-height: 44px;
+    /* Touch-friendly */
+  }
+
+  .add-country-form input[type="text"] {
+    width: 100%;
+  }
+
+  .add-country-form button {
+    width: 100%;
+    margin: 0 0 5px 0;
+  }
+
+  /* Stats dashboard */
+  .stats-dashboard {
+    padding: 12px;
+    gap: 10px;
+    border-radius: 8px;
+  }
+
+  .stats-dashboard h2 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+
+  .stat-card {
+    padding: 10px;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+  }
+
+  /* New user form */
+  .new-user-form {
+    margin: 15px 10px;
+    padding: 15px;
+  }
+
+  .new-user-form h1 {
+    font-size: 1.8em;
+  }
+
+  .new-user-form label span {
+    width: 35px;
+    height: 35px;
+    margin: 3px;
+  }
+
+  .new-user-form input[type="radio"]:checked+label span {
+    transform: scale(1.15);
+  }
+
+  /* Tooltip adjustments */
+  .country-tooltip {
+    font-size: 12px;
+    padding: 6px 10px;
   }
 }

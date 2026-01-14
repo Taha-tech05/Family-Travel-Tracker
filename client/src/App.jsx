@@ -1,10 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
+import api from './services/api';
 import WorldMap from './WorldMap';
 import { countryToContinent } from './constants';
 import './App.css';
-
-const API_BASE_URL = 'http://localhost:3000/api';
 
 function App() {
   const [data, setData] = useState({
@@ -71,8 +69,8 @@ function App() {
   // Fetch data from backend
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/data`);
-      setData(response.data);
+      const result = await api.getData();
+      setData(result);
       setError('');
 
       // Color the visited countries on the map
@@ -83,16 +81,16 @@ function App() {
       });
 
       // Then color the visited countries
-      const countryCodes = response.data.countries;
+      const countryCodes = result.countries;
       countryCodes.forEach(code => {
         const element = document.getElementById(code);
         if (element) {
-          element.style.fill = response.data.color;
+          element.style.fill = result.color;
         }
       });
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError('Failed to load data. Make sure the backend server is running on port 3000.');
+      setError('Failed to load data. Make sure the backend server is running on port 3000 (if using remote mode).');
     }
   };
 
@@ -151,7 +149,7 @@ function App() {
     if (!countryInput.trim()) return;
 
     try {
-      await axios.post(`${API_BASE_URL}/add`, { country: countryInput });
+      await api.addCountry(countryInput);
       setCountryInput('');
       setError('');
       fetchData(); // Refresh data
@@ -163,7 +161,7 @@ function App() {
   // Switch user
   const handleUserSwitch = async (userId) => {
     try {
-      await axios.post(`${API_BASE_URL}/user`, { user: userId });
+      await api.switchUser(userId);
       fetchData(); // Refresh data
     } catch (err) {
       console.error('Error switching user:', err);
@@ -180,10 +178,7 @@ function App() {
     }
 
     try {
-      await axios.post(`${API_BASE_URL}/new`, {
-        name: newUserName,
-        color: newUserColor
-      });
+      await api.addUser(newUserName, newUserColor);
       setNewUserName('');
       setNewUserColor('red');
       setShowNewUserForm(false);
@@ -191,6 +186,36 @@ function App() {
       fetchData(); // Refresh data
     } catch (err) {
       setError('Failed to create user');
+    }
+  };
+
+  // Delete User
+  const handleDeleteUser = async (e, userId) => {
+    e.stopPropagation(); // Prevent tab switching
+    if (!window.confirm("Are you sure you want to delete this user? All their travel history will be lost.")) return;
+
+    try {
+      await api.deleteUser(userId);
+      fetchData();
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.error || "Failed to delete user");
+    }
+  };
+
+  // Delete Country
+  // Delete Country
+  const handleDeleteCountry = async () => {
+    if (!countryInput.trim()) return;
+    if (!window.confirm(`Remove "${countryInput}" from your visits?`)) return;
+
+    try {
+      await api.deleteCountry(countryInput);
+      setCountryInput('');
+      setError('');
+      fetchData();
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to delete country");
     }
   };
 
@@ -222,6 +247,7 @@ function App() {
                     type="button"
                     value={user.id}
                     id={`user-${user.id}`}
+                    onClick={() => handleUserSwitch(user.id)}
                   />
                   <label
                     htmlFor={`user-${user.id}`}
@@ -233,9 +259,16 @@ function App() {
                         ? `0 0 15px ${user.color}, 0 0 25px ${user.color}`
                         : 'none'
                     }}
-                    onClick={() => handleUserSwitch(user.id)}
                   >
                     {user.name}
+                    <span
+                      className="delete-user-btn"
+                      onClick={(e) => handleDeleteUser(e, user.id)}
+                      style={{ marginLeft: '8px', opacity: 0.7, cursor: 'pointer', fontSize: '0.8em' }}
+                      title="Delete User"
+                    >
+                      ✕
+                    </span>
                   </label>
                 </div>
               ))}
@@ -244,10 +277,10 @@ function App() {
                   type="button"
                   value="new"
                   id="tab"
+                  onClick={() => setShowNewUserForm(true)}
                 />
                 <label
                   htmlFor="tab"
-                  onClick={() => setShowNewUserForm(true)}
                 >
                   Add Family Member
                 </label>
@@ -258,6 +291,7 @@ function App() {
             <form onSubmit={handleAddCountry} className="add-country-form">
               {error && <div className="error-message">{error}</div>}
               <input
+                style={{ backgroundColor: data.color }}
                 type="text"
                 name="country"
                 autoFocus
@@ -267,6 +301,14 @@ function App() {
               />
               <button type="submit" style={{ backgroundColor: data.color }}>
                 Add
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteCountry}
+                style={{ backgroundColor: data.color, marginLeft: '5px', opacity: 0.8 }}
+                title="Remove country"
+              >
+                Remove
               </button>
             </form>
           </header>
@@ -300,6 +342,8 @@ function App() {
                 <span className="stat-value" style={{ fontSize: '1.4rem' }}>{stats.topTraveler.name}</span>
                 <span className="stat-label">🏆 Top Traveler ({stats.topTraveler.count})</span>
               </div>
+
+
             </aside>
           </div>
         </>
@@ -311,6 +355,7 @@ function App() {
           <form onSubmit={handleAddUser}>
             <p>What's your name?</p>
             <input
+              style={{ backgroundColor: 'black' }}
               type="text"
               name="name"
               value={newUserName}
